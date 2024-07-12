@@ -18,10 +18,10 @@ namespace Ecommerce.API.Controllers
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
         public ApiResponse response;
-        public IUnitOfWork<Products> UnitOfWork { get; }
+        public IUnitOfWork<Products> UnitOfWork { get; set; }
 
         //public ProductController(AppDbContext dbContext , IGenericRepository<Products> genericRepository)
-        public ProductController(IUnitOfWork<Products> unitOfWork , IMapper mapper , )
+        public ProductController(IUnitOfWork<Products> unitOfWork , IMapper mapper)
         {
             this.UnitOfWork = unitOfWork;
             response = new ApiResponse();
@@ -84,6 +84,13 @@ namespace Ecommerce.API.Controllers
             var products = await UnitOfWork.productRepository.GetAllProductsByCategoryID(cat_id);
             var mappedProducts = mapper.Map<IEnumerable<Products> , IEnumerable<ProductDTO>>(products);
             return Ok(mappedProducts);
+        }
+        [HttpPost]
+        public async Task<ActionResult> PostProduct(ProductDTO productDTO)
+        {
+            var product = mapper.Map<Products>(productDTO);
+            await UnitOfWork.save();
+            return Ok(product);
         }
     }
 }
